@@ -73,7 +73,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
                     # Build output file name
                     fname_out = os.path.join(subject, contrast_dict[contrast][1],
                                              subject + '_' + contrast_dict[contrast][0] + '.'
-                                             + nii_file.split(os.extsep, 1)[1])
+                                             + nii_file_all_ext.split(os.extsep, 1)[1])
                     os.makedirs(os.path.abspath(os.path.dirname(fname_out)), exist_ok=True)
                     # Move
                     shutil.move(nii_file_all_ext, fname_out)
