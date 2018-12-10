@@ -10,6 +10,8 @@
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
+# TODO: convert in temp folder
+
 import os
 import argparse
 import shutil
@@ -31,6 +33,8 @@ def main(path_data):
     :param path_data:
     :return:
     """
+    path_out = './'
+
     contrast_dict = {'T1w': ('T1w', 'anat'), 
                 'T2w': ('T2w', 'anat'),
                 'DWI': ('dwi', 'dwi'),
@@ -42,15 +46,22 @@ def main(path_data):
     keylist_contrast = contrast_dict.keys()
 
     file_extension_dict = {'nii': 'nii.gz', 'json': 'json', 'bval': 'bval', 'bvec': 'bvec'}
-    # Convert dcm to nii
-    for dirName, subdirList, fileList in os.walk(path_data):
-        for file in fileList:
-            if file.startswith(file.split('-')[0] + '-0001.dcm'):
-                init_path = os.path.join(dirName,file)
-                os.system("dcm2niix -b y -z y " + init_path ) 
-    print '\n'
 
-    # Loop across all files+folder within the subject's folder
+    # Go to folder
+    os.chdir(path_data)
+
+    # Convert dcm to nii
+    os.system('dcm2niix -b y -z y -x n -v y ' + path_out)
+
+    # for dirName, subdirList, fileList in os.walk(path_data):
+    #     for file in fileList:
+    #         if file.startswith(file.split('-')[0] + '-0001.dcm'):
+    #             init_path = os.path.join(dirName,file)
+    #             os.system("dcm2niix -b y -z y " + init_path )
+    # print '\n'
+
+    # Loop across NIFTI files
+
     # TODO: just loop across files instead of fetching all files+folder
     for dirName, subdirList, fileList in os.walk(path_data):
         # Loop across all files in the local dir
