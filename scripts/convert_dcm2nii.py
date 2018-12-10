@@ -12,7 +12,7 @@
 
 # TODO: convert in temp folder
 
-import os, glob, argparse, shutil
+import os, glob, argparse, shutil, tempfile
 
 
 def get_parameters():
@@ -54,13 +54,14 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     }
 
     # Convert dcm to nii
-    os.makedirs(path_out, exist_ok=True)
-    # os.chdir(path_data)
-    os.system('dcm2niix -b y -z y -x n -v y -o ' + path_out + ' ' + path_data)
+    path_tmp = tempfile.mkdtemp()
 
-    # Loop across NIFTI files
-    os.chdir(path_out)
-    nii_files = glob.glob('*.nii.gz')
+    os.system('dcm2niix -b y -z y -x n -v y -o ' + path_tmp + ' ' + path_data)
+
+    # Loop across NIFTI files and move converted files to output dir
+    os.makedirs(path_out, exist_ok=True)
+    os.chdir(path_tmp)
+    nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))
     for nii_file in nii_files:
         # Loop across contrasts
         for contrast in list(contrast_dict.keys()):
@@ -68,10 +69,10 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
             if contrast in nii_file:
                 print("Detected: "+nii_file+" --> "+contrast)
                 # Fetch all files with same base name (to include json, bval, etc.), rename and move to BIDS output dir
-                nii_file_all_exts = glob.glob(nii_file.strip('.nii.gz') + '.*')
+                nii_file_all_exts = glob.glob(os.path.join(path_tmp, nii_file.strip('.nii.gz')) + '.*')
                 for nii_file_all_ext in nii_file_all_exts:
                     # Build output file name
-                    fname_out = os.path.join(subject, contrast_dict[contrast][1],
+                    fname_out = os.path.join(path_out, subject, contrast_dict[contrast][1],
                                              subject + '_' + contrast_dict[contrast][0] + '.'
                                              + nii_file_all_ext.split(os.extsep, 1)[1])
                     os.makedirs(os.path.abspath(os.path.dirname(fname_out)), exist_ok=True)
