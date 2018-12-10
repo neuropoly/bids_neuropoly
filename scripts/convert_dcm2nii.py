@@ -1,12 +1,26 @@
+#!/usr/bin/env python
+#
+# Script to convert DICOM data to NIFTI and organize into BIDS structure.
+#
+# Dependencies:
+#   dcm2niix
+#
+# Usage:
+#   python convert_dcm2nii.py -d FOLDER_DICOM
+#
+# Authors: Alexandru Foias, Julien Cohen-Adad
+
 import os
 import argparse
 import shutil
 
 
 def get_parameters():
-    parser = argparse.ArgumentParser(description='This script is used to export unf_sct spineGeneric in BIDS')
+    parser = argparse.ArgumentParser(description='Convert DICOM data to NIFTI and organize into BIDS structure. The '
+                                                 'BIDS structure is specific to the spine_generic project. More info at: '
+                                                 'https://github.com/sct-pipeline/spine_generic')
     parser.add_argument("-d", "--data",
-                        help="Path to data directory",
+                        help="Path to DICOM directory",
                         required=True)
     args = parser.parse_args()
     return args
