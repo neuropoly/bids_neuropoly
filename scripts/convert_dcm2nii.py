@@ -51,7 +51,7 @@ def main(path_data):
     os.chdir(path_data)
 
     # Convert dcm to nii
-    os.system('dcm2niix -b y -z y -x n -v y ' + path_out)
+    # os.system('dcm2niix -b y -z y -x n -v y ' + path_out)
 
     # for dirName, subdirList, fileList in os.walk(path_data):
     #     for file in fileList:
@@ -65,9 +65,18 @@ def main(path_data):
     for nii_file in nii_files:
         # Loop across contrasts
         for contrast in list(contrast_dict.keys()):
-            # If file name includes contrast listed in dict, rename and move in BIDS output dir
+            # Check if file name includes contrast listed in dict
             if contrast in nii_file:
                 print("Detected: "+nii_file+" --> "+contrast)
+                # Fetch all files with same base name (to include json, bval, etc.), rename and move to BIDS output dir
+                nii_file_all_exts = glob.glob(nii_file.strip('.nii.gz') + '.*')
+                for nii_file_all_ext in nii_file_all_exts:
+                    # Build output file name
+                    fname_out = os.path.join(contrast_dict[contrast][1],
+                                             contrast_dict[contrast][0] + '.' + nii_file.split(os.extsep, 1)[1])
+                    # TODO: mkdir
+                    # Move
+                    shutil.move(nii_file_all_ext, fname_out)
                 break
 
     # TODO: just loop across files instead of fetching all files+folder
