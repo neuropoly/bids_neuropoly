@@ -26,7 +26,7 @@ def get_parameters():
                         help='Subject number (e.g. sub-03). Required by BIDS to name folders and files.',
                         required=True)
     parser.add_argument('-o', '--path-output',
-                        help='Path to output NIFTI files sorted into BIDS directory. Default is current directory.',
+                        help='Path to output BIDS dataset directory. Default is current directory.',
                         required=False)
     args = parser.parse_args()
     return args
@@ -37,11 +37,12 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     Convert DICOM data to BIDS-compatible NIFTI files.
     :param path_data: Path to input DICOM directory
     :param subject: Subject number (e.g. sub-03). Required by BIDS to name folders and files
-    :param path_out: Path to output NIFTI files sorted into BIDS directory
+    :param path_out: Path to output BIDS dataset directory
     :return:
     """
 
     # Dictionary of BIDS naming. First element: file name suffix, Second element: destination folder.
+    # Note: this dictionary is based on the spine_generic protocol, but could be extended to other usage:
     contrast_dict = {
         'GRE-MT0': ('acq-MToff_MTS', 'anat'),
         'GRE-MT1': ('acq-MTon_MTS', 'anat'),
@@ -70,8 +71,9 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
                 nii_file_all_exts = glob.glob(nii_file.strip('.nii.gz') + '.*')
                 for nii_file_all_ext in nii_file_all_exts:
                     # Build output file name
-                    fname_out = os.path.join(contrast_dict[contrast][1],
-                                             contrast_dict[contrast][0] + '.' + nii_file.split(os.extsep, 1)[1])
+                    fname_out = os.path.join(subject, contrast_dict[contrast][1],
+                                             subject + '_' + contrast_dict[contrast][0] + '.'
+                                             + nii_file.split(os.extsep, 1)[1])
                     os.makedirs(os.path.abspath(os.path.dirname(fname_out)), exist_ok=True)
                     # Move
                     shutil.move(nii_file_all_ext, fname_out)
