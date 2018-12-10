@@ -59,7 +59,8 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     os.system('dcm2niix -b y -z y -x n -v y -o ' + path_tmp + ' ' + path_data)
 
     # Loop across NIFTI files and move converted files to output dir
-    os.makedirs(path_out, exist_ok=True)
+    if not os.path.exists(path_out):
+        os.makedirs(path_out)
     os.chdir(path_tmp)
     nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))
     for nii_file in nii_files:
@@ -75,7 +76,8 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
                     fname_out = os.path.join(path_out, subject, contrast_dict[contrast][1],
                                              subject + '_' + contrast_dict[contrast][0] + '.'
                                              + nii_file_all_ext.split(os.extsep, 1)[1])
-                    os.makedirs(os.path.abspath(os.path.dirname(fname_out)), exist_ok=True)
+                    if not os.path.exists(os.path.abspath(os.path.dirname(fname_out))):
+                        os.makedirs(os.path.abspath(os.path.dirname(fname_out)))
                     # Move
                     shutil.move(nii_file_all_ext, fname_out)
                 break
