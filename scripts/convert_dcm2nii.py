@@ -33,13 +33,15 @@ def main(path_data):
     """
     path_out = './'
 
-    contrast_dict = {'T1w': ('T1w', 'anat'), 
-                'T2w': ('T2w', 'anat'),
-                'DWI': ('dwi', 'dwi'),
-                'GRE-MT0': ('acq-MToff_MTS','anat'),
-                'GRE-MT1': ('acq-MTon_MTS','anat'),
-                'GRE-T1w': ('acq-T1w_MTS','anat'),
-                'GRE-ME': ('T2star','anat'),}
+    contrast_dict = {
+        'GRE-MT0': ('acq-MToff_MTS','anat'),
+        'GRE-MT1': ('acq-MTon_MTS','anat'),
+        'GRE-T1w': ('acq-T1w_MTS','anat'),
+        'GRE-ME': ('T2star','anat'),
+        'T1w': ('T1w', 'anat'),
+        'T2w': ('T2w', 'anat'),
+        'DWI': ('dwi', 'dwi'),
+    }
    
     keylist_contrast = contrast_dict.keys()
 
@@ -66,6 +68,7 @@ def main(path_data):
             # If file name includes contrast listed in dict, rename and move in BIDS output dir
             if contrast in nii_file:
                 print("Detected: "+nii_file+" --> "+contrast)
+                break
 
     # TODO: just loop across files instead of fetching all files+folder
     # for dirName, subdirList, fileList in os.walk(path_data):
