@@ -12,9 +12,7 @@
 
 # TODO: convert in temp folder
 
-import os
-import argparse
-import shutil
+import os, glob, argparse
 
 
 def get_parameters():
@@ -61,27 +59,34 @@ def main(path_data):
     # print '\n'
 
     # Loop across NIFTI files
+    nii_files = glob.glob('*.nii.gz')
+    for nii_file in nii_files:
+        # Loop across contrasts
+        for contrast in list(contrast_dict.keys()):
+            # If file name includes contrast listed in dict, rename and move in BIDS output dir
+            if contrast in nii_file:
+                print("Detected: "+nii_file+" --> "+contrast)
 
     # TODO: just loop across files instead of fetching all files+folder
-    for dirName, subdirList, fileList in os.walk(path_data):
-        # Loop across all files in the local dir
-        for file in fileList:
-            if file.split('.')[1] in file_extension_dict :
-                init_path = os.path.join(dirName,file)
-                file_extension = file_extension_dict[file.split('.')[1]]
-                current_contrast = file.split('_')[1]              
-
-                # If file name includes contrast listed in dictionary, then rename and move in BIDS dir
-                if current_contrast in contrast_dict:
-                    root_new_path = '/'.join(dirName.split('/')[0:(len(dirName.split('/'))-2)])
-
-                    #Create BIDS folder structure
-                    bids_folder_path = os.path.join(root_new_path,'bids_'+ (dirName.split('/')[(len(dirName.split('/'))-2)]),'sub-01',contrast_dict[current_contrast][1])
-                    bids_file_path = os.path.join(bids_folder_path, 'sub-01_' + contrast_dict[current_contrast][0] + '.' + file_extension)
-                    if not os.path.exists(bids_folder_path):
-                        os.makedirs(bids_folder_path)
-
-                    os.rename(init_path,bids_file_path)
+    # for dirName, subdirList, fileList in os.walk(path_data):
+    #     # Loop across all files in the local dir
+    #     for file in fileList:
+    #         if file.split('.')[1] in file_extension_dict :
+    #             init_path = os.path.join(dirName,file)
+    #             file_extension = file_extension_dict[file.split('.')[1]]
+    #             current_contrast = file.split('_')[1]
+    #
+    #             # If file name includes contrast listed in dictionary, then rename and move in BIDS dir
+    #             if current_contrast in contrast_dict:
+    #                 root_new_path = '/'.join(dirName.split('/')[0:(len(dirName.split('/'))-2)])
+    #
+    #                 #Create BIDS folder structure
+    #                 bids_folder_path = os.path.join(root_new_path,'bids_'+ (dirName.split('/')[(len(dirName.split('/'))-2)]),'sub-01',contrast_dict[current_contrast][1])
+    #                 bids_file_path = os.path.join(bids_folder_path, 'sub-01_' + contrast_dict[current_contrast][0] + '.' + file_extension)
+    #                 if not os.path.exists(bids_folder_path):
+    #                     os.makedirs(bids_folder_path)
+    #
+    #                 os.rename(init_path,bids_file_path)
 
 if __name__ == "__main__":
     args = get_parameters()
