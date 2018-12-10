@@ -12,7 +12,7 @@
 
 # TODO: convert in temp folder
 
-import os, glob, argparse
+import os, glob, argparse, shutil
 
 
 def get_parameters():
@@ -51,7 +51,7 @@ def main(path_data):
     os.chdir(path_data)
 
     # Convert dcm to nii
-    # os.system('dcm2niix -b y -z y -x n -v y ' + path_out)
+    os.system('dcm2niix -b y -z y -x n -v y ' + path_out)
 
     # for dirName, subdirList, fileList in os.walk(path_data):
     #     for file in fileList:
@@ -74,7 +74,7 @@ def main(path_data):
                     # Build output file name
                     fname_out = os.path.join(contrast_dict[contrast][1],
                                              contrast_dict[contrast][0] + '.' + nii_file.split(os.extsep, 1)[1])
-                    # TODO: mkdir
+                    os.makedirs(os.path.abspath(os.path.dirname(fname_out)), exist_ok=True)
                     # Move
                     shutil.move(nii_file_all_ext, fname_out)
                 break
