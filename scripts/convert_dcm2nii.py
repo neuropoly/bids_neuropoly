@@ -64,7 +64,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     os.chdir(path_tmp)
     nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))
 
-    # Hacking for Philips scanners
+    # Hacking for Philips scanners (and other potential outliers in other vendors)
     for nii_file in nii_files:
         # Identify MT volume
         if "GRE-MT" in nii_file:
@@ -78,7 +78,6 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
                 # And copy the json
                 shutil.copy(nii_file.strip('.nii.gz') + '.json', 'tmp_GRE-MT0.json')
                 shutil.copy(nii_file.strip('.nii.gz') + '.json', 'tmp_GRE-MT1.json')
-
         # Identify DWI scan
         if "DWI" in nii_file:
             img = nib.load(nii_file)
@@ -86,6 +85,21 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
             # TODO: Make sure there are no metric files with dim(3) != 1 (e.g. Tensor files)
             if len(img.shape) == 3:
                 os.remove(nii_file)
+
+    # If multiple GRE-ME files, then only consider the one with "sum" in file name
+    ind_gre = [nii_files.index(nii_file) for nii_file in nii_files if "GRE-ME" in nii_file]
+    if not len(ind_gre) == 1:
+        print('WARNING: Detected multiple GRE-ME scans. Only keeping the file which contains "sum".')
+        ind_gre_sum = [nii_files.index(nii_file) for nii_file in nii_files if "sSUM" in nii_file]
+        if len(ind_gre_sum) == 1:
+            # Remove each individual echo
+            for i_file in ind_gre:
+                os.remove(nii_files[i_file])
+            # And rename the sSUM with GRE-ME in file name
+            shutil.copy(nii_files[ind_gre_sum[0]], 'tmp_GRE-ME.nii.gz')
+            shutil.copy(nii_files[ind_gre_sum[0]].strip('nii.gz') + '.json', 'tmp_GRE-ME.json')
+        else:
+            print('WARNING: Cannot find sSUM scan.')
 
     # Main Loop (file name should be consistent with contrast_dict at this point)
     nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))  # need to reinitialize in case temp files were created
