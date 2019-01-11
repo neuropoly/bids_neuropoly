@@ -13,7 +13,7 @@
 # TODO: convert in temp folder
 
 import os, glob, argparse, shutil, tempfile
-
+import nibabel as nib
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Convert DICOM data to NIFTI and organize into BIDS structure. The '
@@ -46,7 +46,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     contrast_dict = {
         'GRE-MT0': ('acq-MToff_MTS', 'anat'),
         'GRE-MT1': ('acq-MTon_MTS', 'anat'),
-        'GRE-T1w': ('acq-T1w_MTS', 'anat'),
+        'GRE-T1': ('acq-T1w_MTS', 'anat'),
         'GRE-ME': ('T2star', 'anat'),
         'T1w': ('T1w', 'anat'),
         'T2w': ('T2w', 'anat'),
@@ -63,6 +63,24 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
         os.makedirs(path_out)
     os.chdir(path_tmp)
     nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))
+
+    # Hacking for Philips scanners
+    for nii_file in nii_files:
+        # Identify MT volume
+        if "GRE-MT" in nii_file:
+            # Make sure it is concatenated along t, i.e., len(dim3)=2
+            img = nib.load(nii_file)
+            if img.shape[3] == 2:
+                print("WARNING: Detected 4D MT scan (likely Philips system). Splitting into MT1 and MT0 3D Nifti files.")
+                # Name the file with key present in contrast_dict{} so it is identified later on
+                nib.save(nib.Nifti1Image(img.get_data()[:, :, :, 0], img.affine, img.header), 'tmp_GRE-MT0.nii.gz')
+                nib.save(nib.Nifti1Image(img.get_data()[:, :, :, 1], img.affine, img.header), 'tmp_GRE-MT1.nii.gz')
+                # And copy the json
+                shutil.copy(nii_file.strip('.nii.gz') + '.json', 'tmp_GRE-MT0.json')
+                shutil.copy(nii_file.strip('.nii.gz') + '.json', 'tmp_GRE-MT1.json')
+
+    # Main Loop (file name should be consistent with contrast_dict at this point)
+    nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))  # need to reinitialize in case temp files were created
     for nii_file in nii_files:
         # Loop across contrasts
         for contrast in list(contrast_dict.keys()):
