@@ -70,7 +70,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
         if "GRE-MT" in nii_file:
             # Make sure it is concatenated along t, i.e., len(dim3)=2
             img = nib.load(nii_file)
-            if img.shape[3] == 2:
+            if len(img.shape) == 4:
                 print("WARNING: Detected 4D MT scan (likely Philips system). Splitting into MT1 and MT0 3D Nifti files.")
                 # Name the file with key present in contrast_dict{} so it is identified later on
                 nib.save(nib.Nifti1Image(img.get_data()[:, :, :, 0], img.affine, img.header), 'tmp_GRE-MT0.nii.gz')
@@ -78,6 +78,14 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
                 # And copy the json
                 shutil.copy(nii_file.strip('.nii.gz') + '.json', 'tmp_GRE-MT0.json')
                 shutil.copy(nii_file.strip('.nii.gz') + '.json', 'tmp_GRE-MT1.json')
+
+        # Identify DWI scan
+        if "DWI" in nii_file:
+            img = nib.load(nii_file)
+            # Check if file is metric (FA, ADC, etc.) instead of DWI time series
+            # TODO: Make sure there are no metric files with dim(3) != 1 (e.g. Tensor files)
+            if len(img.shape) == 3:
+                os.remove(nii_file)
 
     # Main Loop (file name should be consistent with contrast_dict at this point)
     nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))  # need to reinitialize in case temp files were created
