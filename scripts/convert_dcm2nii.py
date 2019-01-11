@@ -46,6 +46,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     contrast_dict = {
         'GRE-MT0': ('acq-MToff_MTS', 'anat'),
         'GRE-MT1': ('acq-MTon_MTS', 'anat'),
+        'GRE-T1': ('acq-T1w_MTS', 'anat'), # This is a hack for Philips
         'GRE-T1w': ('acq-T1w_MTS', 'anat'),
         'GRE-ME': ('T2star', 'anat'),
         'T1w': ('T1w', 'anat'),
