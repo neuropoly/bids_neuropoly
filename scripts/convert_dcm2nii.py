@@ -10,9 +10,7 @@
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
-# TODO: convert in temp folder
-
-import os, glob, argparse, shutil, tempfile,logging,subprocess,git
+import os, glob, argparse, shutil, tempfile, logging, subprocess, git
 import nibabel as nib
 
 def get_parameters():
@@ -65,12 +63,12 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     logging.basicConfig(filename = path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
     
     # Get dcm2niix version
-    cmd = [ 'dcm2niix', '-h' ]
+    cmd = 'dcm2niix'
     output_catch = subprocess.Popen( cmd, stdout=subprocess.PIPE )
-    dcmniix_version = str(output_catch.stdout.readlines()[0])
+    dcmniix_version = str(output_catch.stdout.readlines()[1])
     logging.info('DCM2NIIX VERSION: ' + dcmniix_version)
 
-    # # Get git hashtag
+    # Get git hashtag
     repo = git.Repo(search_parent_directories=True)
     sha = repo.head.object.hexsha
     logging.info('convert_dcm2nii.py VERSION: ' + sha + '\n')
