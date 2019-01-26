@@ -3,7 +3,7 @@ Python package that deals with BIDS structure for filtering data (specific to Ne
 
 ## Installation
 ~~~
-https://github.com/neuropoly/bids_neuropoly.git
+git clone https://github.com/neuropoly/bids_neuropoly.git
 cd bids_neuropoly
 pip install -e .
 ~~~
