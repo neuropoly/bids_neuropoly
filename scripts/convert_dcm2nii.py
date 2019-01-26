@@ -62,22 +62,15 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     # Logging convertion dcm2nii
     logging.basicConfig(filename = path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
     
-    # Get dcm2niix version
-    cmd = 'dcm2niix'
-    output_catch = subprocess.Popen( cmd, stdout=subprocess.PIPE )
-    dcmniix_version = str(output_catch.stdout.readlines()[1])
-    logging.info('DCM2NIIX VERSION: ' + dcmniix_version)
-
     # Get git hashtag
     repo = git.Repo(search_parent_directories=True)
     sha = repo.head.object.hexsha
-    logging.info('convert_dcm2nii.py VERSION: ' + sha + '\n')
-
+    logging.info('convert_dcm2ni (version: ' + sha + ')\n')
 
     # Convert dcm to nii
     cmd = [ 'dcm2niix', '-b' ,'y', '-z', 'y', '-x', 'n', '-v', 'y', '-o', path_tmp, path_data]
     output_catch = subprocess.Popen( cmd, stdout=subprocess.PIPE ).communicate()[0]
-    logging.info('Convert dcm to nii: \n\n' + output_catch)
+    logging.info(output_catch)
 
     # Loop across NIFTI files and move converted files to output dir
     os.chdir(path_tmp)
