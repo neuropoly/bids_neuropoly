@@ -1,2 +1,5 @@
 pybids>=0.6.5
 nibabel
+gitpython
+logging
+subprocess
