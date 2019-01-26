@@ -10,9 +10,7 @@
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
-# TODO: convert in temp folder
-
-import os, glob, argparse, shutil, tempfile
+import os, glob, argparse, shutil, tempfile, logging, subprocess, git
 import nibabel as nib
 
 def get_parameters():
@@ -54,14 +52,27 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
         'DWI': ('dwi', 'dwi'),
     }
 
-    # Convert dcm to nii
+    # Create temp path
     path_tmp = tempfile.mkdtemp()
 
-    os.system('dcm2niix -b y -z y -x n -v y -o ' + path_tmp + ' ' + path_data)
-
-    # Loop across NIFTI files and move converted files to output dir
+    # Create output folder
     if not os.path.exists(path_out):
         os.makedirs(path_out)
+
+    # Logging convertion dcm2nii
+    logging.basicConfig(filename = path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
+    
+    # Get git hashtag
+    repo = git.Repo(search_parent_directories=True)
+    sha = repo.head.object.hexsha
+    logging.info('convert_dcm2ni (version: ' + sha + ')\n')
+
+    # Convert dcm to nii
+    cmd = [ 'dcm2niix', '-b' ,'y', '-z', 'y', '-x', 'n', '-v', 'y', '-o', path_tmp, path_data]
+    output_catch = subprocess.Popen( cmd, stdout=subprocess.PIPE ).communicate()[0]
+    logging.info(output_catch)
+
+    # Loop across NIFTI files and move converted files to output dir
     os.chdir(path_tmp)
     nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))
 
@@ -73,6 +84,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
             img = nib.load(nii_file)
             if len(img.shape) == 4:
                 print("WARNING: Detected 4D MT scan (likely Philips system). Splitting into MT1 and MT0 3D Nifti files.")
+                logging.warning("Detected 4D MT scan (likely Philips system). Splitting into MT1 and MT0 3D Nifti files.")
                 # Name the file with key present in contrast_dict{} so it is identified later on
                 nib.save(nib.Nifti1Image(img.get_data()[:, :, :, 0], img.affine, img.header), 'tmp_GRE-MT0.nii.gz')
                 nib.save(nib.Nifti1Image(img.get_data()[:, :, :, 1], img.affine, img.header), 'tmp_GRE-MT1.nii.gz')
@@ -91,6 +103,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     ind_gre = [nii_files.index(nii_file) for nii_file in nii_files if "GRE-ME" in nii_file]
     if not len(ind_gre) == 1:
         print('WARNING: Detected multiple GRE-ME scans. Only keeping the file which contains "sum".')
+        logging.warning('Detected multiple GRE-ME scans. Only keeping the file which contains "sum".')
         ind_gre_sum = [nii_files.index(nii_file) for nii_file in nii_files if "sSUM" in nii_file]
         if len(ind_gre_sum) == 1:
             # Remove each individual echo
@@ -101,7 +114,9 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
             shutil.copy(nii_files[ind_gre_sum[0]].strip('nii.gz') + '.json', 'tmp_GRE-ME.json')
         else:
             print('WARNING: Cannot find sSUM scan.')
+            logging.warning('Cannot find sSUM scan.')
 
+    msgs = []
     # Main Loop (file name should be consistent with contrast_dict at this point)
     nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))  # need to reinitialize in case temp files were created
     for nii_file in nii_files:
@@ -109,7 +124,10 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
         for contrast in list(contrast_dict.keys()):
             # Check if file name includes contrast listed in dict
             if contrast in nii_file:
-                print("Detected: "+nii_file+" --> "+contrast)
+                message = ("Detected: "+nii_file+" --> "+contrast)
+                print message
+                msgs.append(message)
+
                 # Fetch all files with same base name (to include json, bval, etc.), rename and move to BIDS output dir
                 nii_file_all_exts = glob.glob(os.path.join(path_tmp, nii_file.strip('.nii.gz')) + '.*')
                 for nii_file_all_ext in nii_file_all_exts:
@@ -122,6 +140,9 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
                     # Move
                     shutil.move(nii_file_all_ext, fname_out)
                 break
+    
+    logging.info('Move data to BIDS output dir: \n'+'\n'.join(msgs))
+
 
 
 if __name__ == "__main__":

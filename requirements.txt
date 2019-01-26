@@ -1,2 +1,6 @@
+pybids>=0.6.5
 nibabel>=2.3.0
 pandas>=0.23.0
+gitpython
+logging
+subprocess
