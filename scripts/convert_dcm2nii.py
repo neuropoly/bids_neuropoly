@@ -63,7 +63,9 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     logging.basicConfig(filename = path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
     
     # Get git hashtag
-    repo = git.Repo(search_parent_directories=True)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    head_path_script_dir, tail_path_script_dir = os.path.split(script_dir)
+    repo = git.Repo(head_path_script_dir)
     sha = repo.head.object.hexsha
     logging.info('convert_dcm2ni (version: ' + sha + ')\n')
 
