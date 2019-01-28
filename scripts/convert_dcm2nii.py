@@ -10,7 +10,7 @@
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
-import os, glob, argparse, shutil, tempfile, logging, subprocess, git
+import os, glob, argparse, shutil, tempfile, logging, subprocess, git, platform
 import nibabel as nib
 
 def get_parameters():
@@ -67,6 +67,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     head_path_script_dir, tail_path_script_dir = os.path.split(script_dir)
     repo = git.Repo(head_path_script_dir)
     sha = repo.head.object.hexsha
+    logging.info('System: ' + platform.system() + ' - Release: ' + platform.release())
     logging.info('convert_dcm2ni (version: ' + sha + ')\n')
 
     # Convert dcm to nii
