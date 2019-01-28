@@ -68,7 +68,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     repo = git.Repo(head_path_script_dir)
     sha = repo.head.object.hexsha
     logging.info('System: ' + platform.system() + ' - Release: ' + platform.release())
-    logging.info('convert_dcm2ni (version: ' + sha + ')\n')
+    logging.info('convert_dcm2nii (version: ' + sha + ')\n')
 
     # Convert dcm to nii
     cmd = [ 'dcm2niix', '-b' ,'y', '-z', 'y', '-x', 'n', '-v', 'y', '-o', path_tmp, path_data]
