@@ -10,7 +10,7 @@
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
-import os, glob, argparse, shutil, tempfile, logging, subprocess, git
+import os, glob, argparse, shutil, tempfile, logging, subprocess, git, platform
 import nibabel as nib
 
 def get_parameters():
@@ -63,9 +63,12 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     logging.basicConfig(filename = path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
     
     # Get git hashtag
-    repo = git.Repo(search_parent_directories=True)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    head_path_script_dir, tail_path_script_dir = os.path.split(script_dir)
+    repo = git.Repo(head_path_script_dir)
     sha = repo.head.object.hexsha
-    logging.info('convert_dcm2ni (version: ' + sha + ')\n')
+    logging.info('System: ' + platform.system() + ' - Release: ' + platform.release())
+    logging.info('convert_dcm2nii (version: ' + sha + ')\n')
 
     # Convert dcm to nii
     cmd = [ 'dcm2niix', '-b' ,'y', '-z', 'y', '-x', 'n', '-v', 'y', '-o', path_tmp, path_data]
