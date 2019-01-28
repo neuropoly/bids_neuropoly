@@ -44,7 +44,7 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     contrast_dict = {
         'GRE-MT0': ('acq-MToff_MTS', 'anat'),
         'GRE-MT1': ('acq-MTon_MTS', 'anat'),
-        'GRE-T1': ('acq-T1w_MTS', 'anat'), # This is a hack for Philips
+        'GRE-T1': ('acq-T1w_MTS', 'anat'),  # This is a hack for Philips
         'GRE-T1w': ('acq-T1w_MTS', 'anat'),
         'GRE-ME': ('T2star', 'anat'),
         'T1w': ('T1w', 'anat'),
@@ -59,8 +59,8 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     if not os.path.exists(path_out):
         os.makedirs(path_out)
 
-    # Logging convertion dcm2nii
-    logging.basicConfig(filename = path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
+    # Logging conversion dcm2nii
+    logging.basicConfig(filename=path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
     
     # Get git hashtag
     script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -71,13 +71,14 @@ def convert_dcm2nii(path_data, subject, path_out='./'):
     logging.info('convert_dcm2nii (version: ' + sha + ')\n')
 
     # Convert dcm to nii
-    cmd = [ 'dcm2niix', '-b' ,'y', '-z', 'y', '-x', 'n', '-v', 'y', '-o', path_tmp, path_data]
-    output_catch = subprocess.Popen( cmd, stdout=subprocess.PIPE ).communicate()[0]
+    cmd = ['dcm2niix', '-b' ,'y', '-z', 'y', '-x', 'n', '-v', 'y', '-o', path_tmp, path_data]
+    output_catch = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
     logging.info(output_catch)
 
     # Loop across NIFTI files and move converted files to output dir
     os.chdir(path_tmp)
     nii_files = glob.glob(os.path.join(path_tmp, '*.nii.gz'))
+    logging.info('List of converted files:\n'+'\n'.join(map(str, nii_files)))
 
     # Hacking for Philips scanners (and other potential outliers in other vendors)
     for nii_file in nii_files:
