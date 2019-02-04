@@ -90,7 +90,7 @@ class Subject(object):
         metadata_path = self.__get_metadata_path()
         with open(metadata_path, "r") as fp:
             json_content = json.load(fp)
-        return json_content["Metadata"]
+        return json_content
 
     def get_derivatives(self, derivative_name):
         if not self.has_derivative(derivative_name):
