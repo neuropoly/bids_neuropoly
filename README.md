@@ -2,11 +2,19 @@
 Python package that deals with BIDS structure for filtering data (specific to NeuroPoly developments)
 
 ## API Installation
+
+Recommended installation of stable version is using PyPI and `pip`:
+~~~
+pip install bids-neuropoly
+~~~
+
+But you can also install the development version:
 ~~~
 git clone https://github.com/neuropoly/bids_neuropoly.git
 cd bids_neuropoly
 pip install -e .
 ~~~
+
 
 ## Convert dcm2nii script installation
 ~~~
