@@ -1,11 +1,18 @@
 # bids_neuropoly
 Python package that deals with BIDS structure for filtering data (specific to NeuroPoly developments)
 
-## Installation
+## API Installation
 ~~~
 git clone https://github.com/neuropoly/bids_neuropoly.git
 cd bids_neuropoly
 pip install -e .
+~~~
+
+## Convert dcm2nii script installation
+~~~
+git clone https://github.com/neuropoly/bids_neuropoly.git
+cd bids_neuropoly
+pip install -r scripts/requirements.txt
 ~~~
 
 ## Convert Dicom to BIDS-compatible Nifti dataset
