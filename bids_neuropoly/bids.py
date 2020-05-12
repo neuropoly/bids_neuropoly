@@ -40,7 +40,7 @@ class Participants(object):
         self.__parse_file()
 
     def __parse_file(self):
-        self.content = pd.read_csv(self.file_path, sep='\t')
+        self.content = pd.read_csv(self.file_path, sep='\t', encoding="ISO-8859-1")
 
     def get_by_participant_id(self, participant_id):
         return self.content[self.content["participant_id"] == participant_id]
