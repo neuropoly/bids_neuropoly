@@ -130,6 +130,9 @@ class BIDS(object):
         for i in self.root_path.rglob('*.*'):
             if i.name.lower() in self.METADATA_FNAMES:
                 continue
+            if ".git" in str(i.absolute()):
+                continue
+
 
             # Check if its a nifti file
             if self.NIFTI_EXTENSION in i.suffixes:
